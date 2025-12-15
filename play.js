@@ -1,30 +1,52 @@
-// function getNumbers(numbers) {
-//   return new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//       if (numbers.length === 0) {
-//         reject(new Error("No numbers provided"));
-//         return;
-//       }
-//       resolve(numbers);
-//     }, 1000);
-//   });
-// }
+function fetchUser(userId) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const user = { id: userId, name: "John Doe" };
+      resolve(user);
+    }, 1000);
+  });
+}
 
-// getNumbers([])
-//   .then((data) =>
-//     data.forEach((number) => {
-//       console.log(number);
-//     })
-//   )
-//   .catch((error) => console.error(error));
+function fetchPosts(userId) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const posts = [
+        { id: 1, userId: userId, title: "My First Post" },
+        { id: 2, userId: userId, title: "My Second Post" }
+      ];
+      resolve(posts);
+    }, 1000);
+  });
+}
 
-fetch("https://swapi.dev/api/people/3")
-  .then((data) => {
-    return data.json();
-  })
-  .then((data) => {
-    console.log(data);
-  })
-  .catch((err) => console.error("You have an error\n", err));
+function fetchComments(postId) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const comments = [
+        { id: 1, postId: postId, text: "Great post!" },
+        { id: 2, postId: postId, text: "Thanks for sharing!" }
+      ];
+      resolve(comments);
+    }, 1000);
+  });
+}
 
-console.log("my first message")
+async function getFullData() {
+  try {
+    const user = await fetchUser(1);
+    const posts = await fetchPosts(user.id);
+    const comments = await fetchComments(posts[0].id);
+    return { user, posts, comments };
+  } catch (error) {
+    console.error("Error occurred:", error);
+  }
+}
+
+const data = await getFullData();
+console.log(data);
+
+// fetchUser(1)
+//   .then((user) => fetchPosts(user.id)
+//   .then((posts) => fetchComments(posts[0].id))
+//   .then((comments) => console.log(comments)))
+//   .catch((error) => console.log(error));
