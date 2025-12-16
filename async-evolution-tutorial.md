@@ -3,6 +3,7 @@
 Welcome! This tutorial will walk you through the journey of handling asynchronous operations in JavaScript. We'll use simple `setTimeout` examples that mimic real API calls, showing how JavaScript evolved from callbacks to promises to async/await.
 
 ## Table of Contents
+
 1. [The Problem: Asynchronous Operations](#the-problem)
 2. [Callbacks: The Beginning](#callbacks)
 3. [Promises: A Better Way](#promises)
@@ -15,6 +16,7 @@ Welcome! This tutorial will walk you through the journey of handling asynchronou
 ## The Problem: Asynchronous Operations {#the-problem}
 
 Imagine you're building a web app that needs to:
+
 1. Fetch user data from an API
 2. Then fetch their posts
 3. Then fetch comments on those posts
@@ -77,7 +79,7 @@ function fetchPosts(userId, callback) {
   setTimeout(() => {
     const posts = [
       { id: 1, userId: userId, title: "My First Post" },
-      { id: 2, userId: userId, title: "My Second Post" }
+      { id: 2, userId: userId, title: "My Second Post" },
     ];
     callback(null, posts);
   }, 1000);
@@ -87,7 +89,7 @@ function fetchComments(postId, callback) {
   setTimeout(() => {
     const comments = [
       { id: 1, postId: postId, text: "Great post!" },
-      { id: 2, postId: postId, text: "Thanks for sharing!" }
+      { id: 2, postId: postId, text: "Thanks for sharing!" },
     ];
     callback(null, comments);
   }, 1000);
@@ -99,23 +101,23 @@ fetchUser(1, (error, user) => {
     console.error("Error fetching user:", error);
     return;
   }
-  
+
   console.log("User:", user);
-  
+
   fetchPosts(user.id, (error, posts) => {
     if (error) {
       console.error("Error fetching posts:", error);
       return;
     }
-    
+
     console.log("Posts:", posts);
-    
+
     fetchComments(posts[0].id, (error, comments) => {
       if (error) {
         console.error("Error fetching comments:", error);
         return;
       }
-      
+
       console.log("Comments:", comments);
     });
   });
@@ -133,57 +135,57 @@ fetchUser(1, (error1, user) => {
     console.error("Error 1:", error1);
     return;
   }
-  
+
   fetchPosts(user.id, (error2, posts) => {
     if (error2) {
       console.error("Error 2:", error2);
       return;
     }
-    
+
     fetchComments(posts[0].id, (error3, comments) => {
       if (error3) {
         console.error("Error 3:", error3);
         return;
       }
-      
+
       // Now we need to fetch likes for each comment...
       fetchLikes(comments[0].id, (error4, likes) => {
         if (error4) {
           console.error("Error 4:", error4);
           return;
         }
-        
+
         // And then fetch the user who liked it...
         fetchUser(likes[0].userId, (error5, liker) => {
           if (error5) {
             console.error("Error 5:", error5);
             return;
           }
-          
+
           // And then fetch their profile picture...
           fetchProfilePicture(liker.id, (error6, picture) => {
             if (error6) {
               console.error("Error 6:", error6);
               return;
             }
-            
+
             // Finally! We can do something with all this data
             console.log("Profile picture URL:", picture.url);
-            
+
             // But wait, we need to process this picture...
             processPicture(picture.url, (error7, processed) => {
               if (error7) {
                 console.error("Error 7:", error7);
                 return;
               }
-              
+
               // And save it...
               savePicture(processed, (error8, saved) => {
                 if (error8) {
                   console.error("Error 8:", error8);
                   return;
                 }
-                
+
                 console.log("Finally done!", saved);
               });
             });
@@ -221,6 +223,7 @@ function savePicture(picture, callback) {
 ```
 
 😱 **See the problem?** This code is:
+
 - Hard to read
 - Hard to maintain
 - Hard to debug
@@ -234,6 +237,7 @@ function savePicture(picture, callback) {
 ### What are Promises?
 
 A **Promise** is an object that represents the eventual completion (or failure) of an asynchronous operation. It has three states:
+
 - **Pending**: Initial state, neither fulfilled nor rejected
 - **Fulfilled**: Operation completed successfully
 - **Rejected**: Operation failed
@@ -244,6 +248,7 @@ A **Promise** is an object that represents the eventual completion (or failure) 
 function fetchUser(userId) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
+      if (userId < 1 || !userId) reject(new Error("id not valid"));
       const user = { id: userId, name: "John Doe", email: "john@example.com" };
       resolve(user); // Success!
     }, 1000);
@@ -279,7 +284,7 @@ function fetchPosts(userId) {
     setTimeout(() => {
       const posts = [
         { id: 1, userId: userId, title: "My First Post" },
-        { id: 2, userId: userId, title: "My Second Post" }
+        { id: 2, userId: userId, title: "My Second Post" },
       ];
       resolve(posts);
     }, 1000);
@@ -291,7 +296,7 @@ function fetchComments(postId) {
     setTimeout(() => {
       const comments = [
         { id: 1, postId: postId, text: "Great post!" },
-        { id: 2, postId: postId, text: "Thanks for sharing!" }
+        { id: 2, postId: postId, text: "Thanks for sharing!" },
       ];
       resolve(comments);
     }, 1000);
@@ -320,16 +325,16 @@ fetchUser(1)
 
 ```javascript
 fetchUser(1)
-  .then(user => {
+  .then((user) => {
     console.log("User:", user);
     return fetchPosts(user.id);
   })
-  .then(posts => {
+  .then((posts) => {
     console.log("Posts:", posts);
     return fetchComments(posts[0].id);
   })
-  .then(comments => console.log("Comments:", comments))
-  .catch(error => console.error("Error:", error));
+  .then((comments) => console.log("Comments:", comments))
+  .catch((error) => console.error("Error:", error));
 ```
 
 Much better than callback hell! 🎉
@@ -349,6 +354,7 @@ Much better than callback hell! 🎉
 function fetchUser(userId) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
+      if (userId < 1 || !userId) reject(new Error("id not valid"));
       const user = { id: userId, name: "John Doe", email: "john@example.com" };
       resolve(user);
     }, 1000);
@@ -358,10 +364,14 @@ function fetchUser(userId) {
 // Using async/await
 async function getUser() {
   const user = await fetchUser(1);
-  console.log("User fetched:", user);
+  return user;
 }
-
-getUser();
+try {
+  const user = await getUser();
+  console.log("fetched user: ", user);
+} catch (err) {
+  console.log("Error: ", err);
+}
 ```
 
 ### Chaining with Async/Await
@@ -371,13 +381,13 @@ async function getFullData() {
   try {
     const user = await fetchUser(1);
     console.log("User:", user);
-    
+
     const posts = await fetchPosts(user.id);
     console.log("Posts:", posts);
-    
+
     const comments = await fetchComments(posts[0].id);
     console.log("Comments:", comments);
-    
+
     return { user, posts, comments };
   } catch (error) {
     console.error("Error occurred:", error);
@@ -397,12 +407,8 @@ Sometimes you don't need to wait for one operation to finish before starting ano
 async function getMultipleUsers() {
   try {
     // These will run in parallel!
-    const [user1, user2, user3] = await Promise.all([
-      fetchUser(1),
-      fetchUser(2),
-      fetchUser(3)
-    ]);
-    
+    const [user1, user2, user3] = await Promise.all([fetchUser(1), fetchUser(2), fetchUser(3)]);
+
     console.log("All users:", user1, user2, user3);
   } catch (error) {
     console.error("Error:", error);
@@ -430,7 +436,7 @@ function fetchUser(userId, callback) {
       callback(new Error("Invalid user ID"), null);
       return;
     }
-    
+
     const user = { id: userId, name: "John Doe" };
     callback(null, user); // null means no error
   }, 1000);
@@ -442,7 +448,7 @@ fetchUser(1, (error, user) => {
     console.error("Error:", error.message);
     return;
   }
-  
+
   console.log("User:", user);
 });
 
@@ -452,7 +458,7 @@ fetchUser(0, (error, user) => {
     console.error("Error:", error.message); // "Invalid user ID"
     return;
   }
-  
+
   console.log("User:", user);
 });
 ```
@@ -469,7 +475,7 @@ function fetchUser(userId) {
         reject(new Error("Invalid user ID"));
         return;
       }
-      
+
       const user = { id: userId, name: "John Doe" };
       resolve(user);
     }, 1000);
@@ -486,11 +492,10 @@ fetchUser(1)
   });
 
 // Method 2: Using second parameter of .then()
-fetchUser(0)
-  .then(
-    (user) => console.log("User:", user),
-    (error) => console.error("Error:", error.message)
-  );
+fetchUser(0).then(
+  (user) => console.log("User:", user),
+  (error) => console.error("Error:", error.message)
+);
 
 // Chaining with error handling
 fetchUser(1)
@@ -517,13 +522,13 @@ async function getFullData() {
   try {
     const user = await fetchUser(1);
     console.log("User:", user);
-    
+
     const posts = await fetchPosts(user.id);
     console.log("Posts:", posts);
-    
+
     const comments = await fetchComments(posts[0].id);
     console.log("Comments:", comments);
-    
+
     return { user, posts, comments };
   } catch (error) {
     // Catches ANY error in the try block!
@@ -542,7 +547,7 @@ async function getUserSafely(userId) {
   }
 }
 
-getUserSafely(0).then(result => {
+getUserSafely(0).then((result) => {
   if (result.success) {
     console.log("User:", result.data);
   } else {
@@ -556,6 +561,7 @@ getUserSafely(0).then(result => {
 ## Summary {#summary}
 
 ### Callbacks
+
 - ✅ Original way to handle async operations
 - ✅ Works everywhere
 - ❌ Can lead to callback hell
@@ -563,6 +569,7 @@ getUserSafely(0).then(result => {
 - ❌ Error handling is verbose
 
 ### Promises
+
 - ✅ Better than callbacks
 - ✅ Chainable and composable
 - ✅ Better error handling
@@ -570,6 +577,7 @@ getUserSafely(0).then(result => {
 - ❌ Can get verbose with complex logic
 
 ### Async/Await
+
 - ✅ Cleanest and most readable
 - ✅ Looks like synchronous code
 - ✅ Easy error handling with try/catch
@@ -597,9 +605,9 @@ fetchUser(1, (error, user) => {
 
 // PROMISES
 fetchUser(1)
-  .then(user => fetchPosts(user.id))
-  .then(posts => console.log(posts))
-  .catch(error => console.error(error));
+  .then((user) => fetchPosts(user.id))
+  .then((posts) => console.log(posts))
+  .catch((error) => console.error(error));
 
 // ASYNC/AWAIT
 async function getData() {
@@ -629,4 +637,3 @@ async function getData() {
 - Explore how to handle multiple async operations efficiently
 
 Happy coding! 🎉
-
