@@ -173,6 +173,7 @@
 // // } catch (err) {
 // //   console.log(err)
 // // }
+
 // const myUser = { name: "Avi", role: "Student", abc: null }
 // const res = await fetch("https://jsonplaceholder.typicode.com/users/1", {
 //   method: "PUT",
